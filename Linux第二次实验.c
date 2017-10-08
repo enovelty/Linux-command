@@ -1,4 +1,5 @@
-﻿//在linux下环境实测能够运行 
+﻿//添加注释测试
+//在linux下环境实测能够运行 
 
 #include <stdio.h>
 #include <unistd.h>		//
