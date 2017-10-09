@@ -64,7 +64,7 @@ int main(int argc, char*argv[])
 }
 
 //文件类型
-int print_type(mode_t st_mode)
+int print_type(mode_t st_mode)	//这段照搬的PPT，此处是带参数的宏
 {   
 	if		(S_ISREG(st_mode))
 		printf("-");
@@ -85,7 +85,7 @@ int print_type(mode_t st_mode)
 }
 
 //文件权限 
-void print_perm(mode_t st_mode){
+void print_perm(mode_t st_mode){	//这段代码判断条件需要注意
 	if ((S_IRUSR &st_mode) == S_IRUSR){		
         printf("r");
 		}
@@ -133,21 +133,21 @@ void print_link(nlink_t st_nlink){
 
 //文件所有者名字 
 void print_usrname(uid_t st_uid){
-	struct passwd *p = getpwuid(st_uid);
+	struct passwd *p = getpwuid(st_uid);	//passd结构体
 	printf("%s ", p->pw_name);
 }
 
 //所在组名字 
 void print_grname(gid_t st_gid){
-	struct group *p = getgrgid(st_gid);
+	struct group *p = getgrgid(st_gid);	//group结构体
 	printf("%s ", p->gr_name);
 }
 
 //修改时间
 void print_time(time_t time){
 	struct tm *localtime(const time_t *clock);
-	struct tm *t = localtime(&currentstat.st_mtime);
-	printf("%d-%.2d-%.2d %2d:%2.2d "
+	struct tm *t = localtime(&currentstat.st_mtime);	//注意这里是&
+	printf("%d-%.2d-%.2d %2d:%2.2d "	//这段是从网上看到
 			,t->tm_year + 1900
 			,t->tm_mon + 1
 			,t->tm_mday
