@@ -24,7 +24,7 @@ int main()
     	struct shared_use_st *pshared;
     
     if((out=fopen("/home/zero/learn/linux_lab/write.txt","w"))==NULL)
-	{
+    {
         printf("写文件打开失败！\n");  
         exit(1);  
     }
@@ -39,7 +39,7 @@ int main()
     //将共享内存连接到当前进程的地址空间  
     shm = shmat(shmid, (void *)0, 0);  
     if(shm == (void*)-1)  
-   	{  
+    {  
     	fprintf(stderr, "shmat failed\n");  
         exit(EXIT_FAILURE);  
     }  
@@ -80,8 +80,8 @@ int main()
 	}//for
 	
 	//把共享内存从当前进程中分离  
-	if(shmdt(shm) == -1)  
-	{  
+    if(shmdt(shm) == -1)  
+    {  
         fprintf(stderr, "shmdt failed\n");  
         exit(EXIT_FAILURE);  
     }
