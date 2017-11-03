@@ -7,7 +7,7 @@
 
 struct shared_use_st  
 {  
-	int index[5];			//为0表示对应的缓冲区未被生产者使用，可分配 不可消费；为1表示对应的缓冲区已经被生产者使用，不可分配 可消费
+	int index[5];		//为0表示对应的缓冲区未被生产者使用，可分配 不可消费；为1表示对应的缓冲区已经被生产者使用，不可分配 可消费
 	char buffer[5][100];	//5个字符串缓冲区
 };
 
@@ -20,8 +20,8 @@ int main()
 {
 	FILE *out;
 	int shmid;	//共享内存标识符
-    void *shm = NULL;	//指向共享内存第一个字节的指针
-    struct shared_use_st *pshared;
+    	void *shm = NULL;	//指向共享内存第一个字节的指针
+    	struct shared_use_st *pshared;
     
     if((out=fopen("/home/zero/learn/linux_lab/write.txt","w"))==NULL)
 	{
@@ -29,7 +29,7 @@ int main()
         exit(1);  
     }
 	
-	//创建共享内存  
+    //创建共享内存  
     shmid = shmget((key_t)3, sizeof(struct shared_use_st), 0666|IPC_CREAT);  
     if(shmid == -1)  
     {  
@@ -46,8 +46,7 @@ int main()
     printf("Memory attached at %X\n", (int)shm);  
     //设置共享内存  
     pshared = (struct shared_use_st*)shm;
-    struct shared_use_st shared = *pshared;
-	//创建信号量  
+    //创建信号量  
     sem_id = semget((key_t)10, 1, 0666 | IPC_CREAT);
 	
 	for (int i = 0; i < 10; i++){
@@ -86,7 +85,7 @@ int main()
         fprintf(stderr, "shmdt failed\n");  
         exit(EXIT_FAILURE);  
     }
-	//删除共享内存  
+    //删除共享内存  
     if(shmctl(shmid, IPC_RMID, 0) == -1)  
     {  
         fprintf(stderr, "shmctl(IPC_RMID) failed\n");  
