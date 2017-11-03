@@ -7,8 +7,8 @@
 
 struct shared_use_st  
 {  
-	int index[5];		//为0表示对应的缓冲区未被生产者使用，可分配 不可消费；为1表示对应的缓冲区已经被生产者使用，不可分配 可消费
-	char buffer[5][100];//5个字符串缓冲区
+	int index[5];			//为0表示对应的缓冲区未被生产者使用，可分配 不可消费；为1表示对应的缓冲区已经被生产者使用，不可分配 可消费
+	char buffer[5][100];	//5个字符串缓冲区
 }; 
 
 union semun  
@@ -29,7 +29,7 @@ int main()
 {
 	FILE *in;	//文件流
 	int shmid;	//共享内存标识符
-    void *shm = NULL;	//指向共享内存第一个字节的指针
+   	void *shm = NULL;	//指向共享内存第一个字节的指针
     struct shared_use_st *pshared;
 
 	if((in=fopen("/home/zero/learn/linux_lab/read.txt","r"))==NULL)
@@ -95,13 +95,6 @@ int main()
 				exit(0);
 			sleep(3);
 		}
-		
-/*		char ch[5];*/
-/*		printf("continue?(y/n): ");*/
-/*		fgets(ch, 4, stdin);*/
-/*		if (strncmp(ch, "n", 1) == 0)*/
-/*			break;*/
-	}//while
 	
 	//把共享内存从当前进程中分离  
     if(shmdt(shm) == -1)  
