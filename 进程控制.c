@@ -1,0 +1,183 @@
+#include <stdio.h>		//snprintf
+#include <unistd.h>		//fork,execl,getcwd
+#include <stdlib.h>		//exit
+#include <dirent.h>		//opendir, readdir, closedir
+#include <sys/stat.h>	//lstat,mkdir
+#include <sys/types.h>	//uid_t, time_t等等_t 
+#include <pwd.h>		//getpwuid  
+#include <grp.h>		//getgrgid
+#include <time.h>		//tm
+#include <sys/wait.h>	//wait
+
+int print_type(mode_t st_mode);
+void print_perm(mode_t st_mode);
+void print_link(nlink_t st_nlink);
+void print_usrname(uid_t st_uid);
+void print_grname(gid_t st_gid);
+void print_time(time_t time);
+void print_filename(struct dirent *currentdp);
+
+struct stat currentstat;
+
+int main(int argc, char*argv[])
+{
+	struct dirent *currentdp;
+	DIR *currentdir;
+	pid_t pid;
+	
+	if(argc != 3){
+		printf("参数个数错误\n");
+		exit(1);	
+	}
+	
+	if ((currentdir = opendir(argv[2])) == NULL){
+		printf("open directory fail\n");
+		return 0;
+	}
+												//创建文件夹
+	mkdir("/home/zero/**/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	
+	while ((currentdp = readdir(currentdir)) != NULL){
+		if (currentdp->d_name[0] != '.'){
+			
+			if (lstat(currentdp->d_name, &currentstat) == -1){
+				printf("get stat error\n");
+				continue;
+			}
+			
+			if ((pid = fork()) == -1){
+				printf("fork error\n");
+			}
+			
+			if (pid == 0){	//子进程
+				char file_source_path[1024] = {0};  
+        		snprintf(file_source_path, sizeof(file_source_path), "%s/%s", argv[2], currentdp->d_name);
+        
+        		char file_destination_path[1024] = {0};  
+        		snprintf(file_destination_path, sizeof(file_destination_path), "%s/%s", "/home/zero/**", currentdp->d_name);
+													//要给出程序名
+				if((execl("/home/zero/learn/linux_lab/cp-r", argv[1], file_source_path, file_destination_path, NULL)) == -1)
+				{
+					printf("调用cp-r失败\n");
+					perror("");
+				}
+    			exit(0);
+			}//子进程
+			else{			//父进程
+				waitpid(pid, NULL, 0);
+			}
+			
+			print_type(currentstat.st_mode);	//文件类型 
+			print_perm(currentstat.st_mode);	//文件权限 
+			print_link(currentstat.st_nlink);	//硬连接数 
+			print_usrname(currentstat.st_uid);	//所有者名 
+			print_grname(currentstat.st_gid);	//所在组名 
+			printf("%6ld ", currentstat.st_size);	//文件大小  
+			print_time(currentstat.st_mtime);	//修改时间 
+			print_filename(currentdp);		//文件名 
+			printf("\n");
+		}
+	}//while
+
+	closedir(currentdir);
+	
+	return 0;
+}
+
+//文件类型
+int print_type(mode_t st_mode)
+{   
+	if		(S_ISREG(st_mode))
+		printf("-");
+	else if (S_ISDIR(st_mode))
+		printf("d");
+	else if (S_ISCHR(st_mode))
+		printf("c");
+	else if (S_ISBLK(st_mode))
+		printf("b");
+	else if (S_ISFIFO(st_mode))
+		printf("p");
+	else if (S_ISLNK(st_mode))
+		printf("l");
+	else if (S_ISSOCK(st_mode))
+		printf("s");	
+	
+	return 0;   
+}
+
+//文件权限 
+void print_perm(mode_t st_mode){
+	if ((S_IRUSR &st_mode) == S_IRUSR){		
+        printf("r");
+		}
+	else printf("-");
+	if ((S_IWUSR &st_mode) == S_IWUSR){
+        printf("w");
+		}
+	else printf("-"); 
+	if ((S_IXUSR &st_mode) == S_IXUSR){
+        printf("x");
+		}
+	else printf("-");
+	if ((S_IRGRP &st_mode) == S_IRGRP){
+        printf("r");
+		}
+	else printf("-");
+	if ((S_IWGRP &st_mode) == S_IWGRP){
+        printf("w");
+		}
+	else printf("-");
+	if ((S_IXGRP &st_mode) == S_IXGRP){
+        printf("x");
+		}
+	else printf("-");
+	if ((S_IROTH &st_mode) == S_IROTH){
+        printf("r");
+		}
+	else printf("-");
+	if ((S_IWOTH &st_mode) == S_IWOTH){
+        printf("w");
+		}
+	else printf("-");
+	if ((S_IXOTH &st_mode) == S_IXOTH){
+        printf("x");
+		}
+	else printf("-");
+	
+	printf(" "); 
+}
+
+//硬链接数 
+void print_link(nlink_t st_nlink){
+	printf("%ld ", currentstat.st_nlink);
+}
+
+//文件所有者名字 
+void print_usrname(uid_t st_uid){
+	struct passwd *p = getpwuid(st_uid);
+	printf("%s ", p->pw_name);
+}
+
+//所在组名字 
+void print_grname(gid_t st_gid){
+	struct group *p = getgrgid(st_gid);
+	printf("%s ", p->gr_name);
+}
+
+//修改时间
+void print_time(time_t time){
+	struct tm *localtime(const time_t *clock);
+	struct tm *t = localtime(&currentstat.st_mtime);
+	printf("%d-%.2d-%.2d %2d:%2.2d "
+			,t->tm_year + 1900
+			,t->tm_mon + 1
+			,t->tm_mday
+			,t->tm_hour
+			,t->tm_min);
+}
+
+//文件名
+void print_filename(struct dirent *currentdp){
+	printf("%s", currentdp->d_name);
+}
+
