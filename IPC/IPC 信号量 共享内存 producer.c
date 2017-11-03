@@ -55,11 +55,10 @@ int main()
     printf("Memory attached at %X\n", (int)shm);  
     //设置共享内存  
     pshared = (struct shared_use_st*)shm;
-    struct shared_use_st shared = *pshared;  
     //创建信号量  
     sem_id = semget((key_t)10, 1, 0666 | IPC_CREAT);
     //初始化信号量
-	if(!set_semvalue())  
+    if(!set_semvalue())  
     {  
         fprintf(stderr, "Failed to initialize semaphore\n");  
         exit(EXIT_FAILURE);  
